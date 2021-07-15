@@ -1,12 +1,12 @@
-const Exceljs = require('exceljs')
+const Exceljs = require('exceljs') //gets exceljs library
 
-class Spreadsheet {
+class Spreadsheet { //initializes filepath
     constructor(filePath) {
         this.filePath = filePath;
     }
 
-    async getDescriptions(params) {
-        // {wsname:string, maxNumCol:string, description:[string], manufacturerer: string, startingRow: int}
+    async getDescriptions(params) { //Finds the 'description column in the excel file and makes an array of descriptions
+        // {wsname:string, maxNumCol:string, description:[string], manufacturer: string, startingRow: int}
         const wb = new Exceljs.Workbook();
         await wb.xlsx.readFile(this.filePath);
         const ws = wb.getWorksheet(params.wsname);
@@ -14,20 +14,20 @@ class Spreadsheet {
         let descriptions = [];
         let description = "";
         for (let i = params.startingRow; i <= lastRow; i++) {
-            for (const col of params.descriptions) {
+            for (const col of params.descriptions) { //gets info from worksheet and the standardized item descriptions are being pushed
                 description = `${description},${ws.getCell(`${col}${i}`).text}`
             }
-            descriptions.push({
+            descriptions.push({ //Each description of the description array has a description and manufacturer name 
                 maxNum: ws.getCell(`${params.maxNumCol}${i}`).text,
                 description: description,
-                manufacturer: ws.getCell(`${params.manufacturerer}${i}`, ).text
+                manufacturer: ws.getCell(`${params.manufacturer}${i}`, ).text
             })
-            description = "";
+            description = ""; //accounting for empty descriptions 
         }
         return descriptions
     }
 
-    async getTranslations() {
+    async getTranslations() { //for worksheets in different languages (apart from ENG)
         const wb = new Exceljs.Workbook();
         await wb.xlsx.readFile(this.filePath);
         const ws = wb.worksheets[0]; //assume there is only 1 worksheet and its the one we want
